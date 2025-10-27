@@ -27,10 +27,10 @@ A userscript that allows you to selectively hide different sections of osu! prof
 
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Greasemonkey](https://www.greasespot.net/)
 2. Choose one of the script variants: (note that senior versions build upon previous ones)
-   - `default.user.js` - Basic functionality
-   - `withAutoCollapse.user.js` - v2: Auto-collapse features (remembers last state)
-   - `withA-Delete.user.js` - v3: Enhanced with delete functionality that allows you to remove the sections
-   - `withAD-i18n.user.js` - v4: Internationalization(i18n) support
+   - [`default.user.js`](./default.user.js) - Basic functionality
+   - [`withAutoCollapse.user.js`](./withAutoCollapse.user.js) - v2: Auto-collapse features (remembers last state)
+   - [`withA-Delete.user.js`](./withA-Delete.user.js) - v3: Enhanced with delete functionality that allows you to remove the sections
+   - [`withAD-i18n.user.js`](./withAD-i18n.user.js) - v4: Internationalization(i18n) support
 3. Create a new userscript in your manager and copy-paste the code from the chosen variant
 4. Save and enable the script
 5. Visit any osu! user profile page to see it in action. You are all set then.
