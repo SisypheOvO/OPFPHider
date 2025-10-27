@@ -16,7 +16,7 @@ A userscript that allows you to selectively hide different sections of osu! prof
   - Medals
   - Historical data
   - Kudosu
-- Compatible with osu-web enhanced plugin
+- Compatible with _**osu-web enhanced**_ plugin
 - Persistent settings across page refreshes
 - Simple toggle buttons for each section
 - Blend into the webpage using the user's **theme color**
@@ -39,3 +39,13 @@ A userscript that allows you to selectively hide different sections of osu! prof
 ## Contributing
 
 Feel free to submit issues and pull requests to improve the script.
+
+## About osu-web enhanced
+
+an awesome userscript for osu webpages. check it out if you like.
+
+[release forum](https://osu.ppy.sh/community/forums/topics/1361818?n=1)
+
+[source code on Gitlab](https://gitlab.com/RockRoller/osu-web-enhanced)
+
+[homepage on osuck.net](https://tools.osuck.net/tool/66e9f4f78a6d5ff8a0fe5be1)
