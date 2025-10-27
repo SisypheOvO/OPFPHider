@@ -22,6 +22,9 @@ A userscript that allows you to selectively hide different sections of osu! prof
 
 ## Installation
 
+> [!IMPORTANT]
+> v4 is recommended for better performance.
+
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Greasemonkey](https://www.greasespot.net/)
 2. Choose one of the script variants: (note that senior versions build upon previous ones)
    - `default.user.js` - Basic functionality
