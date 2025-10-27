@@ -19,6 +19,7 @@ A userscript that allows you to selectively hide different sections of osu! prof
 - Compatible with osu-web enhanced plugin
 - Persistent settings across page refreshes
 - Simple toggle buttons for each section
+- Blend into the webpage using the user's **theme color**
 
 ## Installation
 
