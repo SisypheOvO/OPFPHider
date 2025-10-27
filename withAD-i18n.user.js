@@ -24,7 +24,6 @@
         UP: '<path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0, -1)"/>'
     };
 
-    // i18n 支持 - 只针对按钮和说明文字
     const i18n = {
         'en': {
             'collapseDescription': 'Pages collapsed by default',
@@ -70,9 +69,7 @@
     let isInitializing = true;
     let currentLanguage = 'en';
 
-    // 语言检测函数
     function detectLanguage() {
-        // 1. 从存储中获取用户选择的语言
         try {
             const storedLang = localStorage.getItem(LANGUAGE_KEY);
             if (storedLang && i18n[storedLang]) {
@@ -82,19 +79,18 @@
             console.error('加载语言设置失败:', e);
         }
 
-        // 2. 从页面语言检测
+        // Fallback1: 从 HTML lang 属性检测
         const htmlLang = document.documentElement.lang;
         if (htmlLang) {
             // 处理类似 'zh-CN', 'ja-JP' 的情况
             const primaryLang = htmlLang.split('-')[0];
             const fullLang = htmlLang;
 
-            // 先尝试完整匹配，再尝试主要语言匹配
             if (i18n[fullLang]) return fullLang;
             if (i18n[primaryLang]) return primaryLang;
         }
 
-        // 3. 从浏览器语言检测
+        // Fallback2: 从浏览器语言检测
         const browserLang = navigator.language || navigator.userLanguage;
         if (browserLang) {
             const primaryBrowserLang = browserLang.split('-')[0];
@@ -104,7 +100,7 @@
             if (i18n[primaryBrowserLang]) return primaryBrowserLang;
         }
 
-        // 4. 默认英语
+        // Fallback3
         return 'en';
     }
 
@@ -157,7 +153,6 @@
         saveStates(REMOVE_STORAGE_KEY, states);
     }
 
-    // 获取页面名称的函数
     function getPageName(pageId) {
         const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`);
         if (!pageContainer) return pageId;
@@ -167,16 +162,15 @@
             return titleElement.textContent.trim();
         }
 
-        // 备用方案：尝试其他选择器
+        // or 尝试其他选择器
         const fallbackTitle = pageContainer.querySelector('.u-relative h2');
         if (fallbackTitle) {
             return fallbackTitle.textContent.trim();
         }
 
-        return pageId; // 如果都找不到，返回pageId作为后备
+        return pageId; // or 返回pageId
     }
 
-    // 获取所有页面名称
     function getAllPageNames() {
         const pageNames = {};
         targetPageIds.forEach(pageId => {
@@ -192,19 +186,12 @@
     }
 
     function init() {
-        // 初始化语言
         currentLanguage = detectLanguage();
-
         addSettingsButton();
-
-        // 先处理删除逻辑
         processRemoveStates();
-
-        // 然后处理折叠逻辑
         targetPageIds.forEach(pageId => {
             insertButtonForPage(pageId);
         });
-
         observePageChanges();
 
         setTimeout(() => {
@@ -298,15 +285,13 @@
 
         document.body.appendChild(panel);
 
-        // 语言选择器事件
+        // 事件处理
         document.getElementById('opfphider-language-select').addEventListener('change', function (e) {
             setLanguage(e.target.value);
-            // 重新打开面板以刷新语言
+            // 重新渲染面板以刷新语言
             panel.remove();
             toggleSettingsPanel();
         });
-
-        // 事件处理
         document.getElementById('opfphider-save').addEventListener('click', saveSettings);
         document.getElementById('opfphider-cancel').addEventListener('click', () => panel.remove());
     }
@@ -328,34 +313,6 @@
         saveRemoveStates(newRemoveStates);
 
         document.querySelector('#opfphider-settings-panel').remove();
-
-        // 显示刷新提示
-        showRefreshNotification();
-    }
-
-    function showRefreshNotification() {
-        const existingNotification = document.querySelector('#opfphider-refresh-notification');
-        if (existingNotification) {
-            existingNotification.remove();
-        }
-
-        const notification = document.createElement('div');
-        notification.id = 'opfphider-refresh-notification';
-        notification.innerHTML = `
-            <div style="padding: 10px; background: #4CAF50; color: white; border-radius: 5px; margin-top: 10px; font-size: 12px;">
-                ${getTranslation('refreshNotification')}
-            </div>
-        `;
-
-        const panel = document.querySelector('#opfphider-settings-panel');
-        if (panel) {
-            panel.appendChild(notification);
-
-            // 3秒后自动消失
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
     }
 
     function processRemoveStates() {
@@ -373,19 +330,17 @@
         const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`);
         if (pageContainer) {
             pageContainer.remove();
-            console.log(`🗑️ 已删除页面内容: ${pageId}`);
         }
 
         // 删除标签页导航
         const tabLink = document.querySelector(`.page-mode--profile-page-extra a[data-page-id="${pageId}"]`);
         if (tabLink) {
             tabLink.remove();
-            console.log(`🗑️ 已删除页面标签: ${pageId}`);
         }
     }
 
     function insertButtonForPage(pageId) {
-        // 如果该页面被设置为删除，则不插入按钮
+        // 如果该页面已被设置为删除，则无需插入
         const removeStates = loadRemoveStates();
         if (removeStates[pageId]) {
             return;
@@ -404,8 +359,6 @@
             targetElement.appendChild(button);
 
             initializePageState(pageId);
-
-            console.log(`✅ 按钮已插入到 ${pageId} 页面`);
         }
     }
 
@@ -439,7 +392,6 @@
         const isCollapsed = storedStates.hasOwnProperty(pageId) ? storedStates[pageId] : false;
         pageStates.set(pageId, isCollapsed);
 
-        // 根据存储状态设置初始显示
         setTimeout(() => {
             const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`);
             if (pageContainer) {
@@ -475,7 +427,7 @@
 
         let totalHeaderHeight = uRelativeHeight + paddingTop + paddingBottom + extraBuffer;
 
-        // 特殊处理 me 模块可能包含的me-expander
+        // 特殊处理 me 模块可能包含的 me-expander (为兼容 osu-web enhanced 扩展)
         if (pageId === 'me') {
             const meExpander = document.querySelector('.js-sortable--page[data-page-id="me"] .me-expander');
             if (meExpander) {
@@ -507,6 +459,7 @@
             pageExtra.dataset.originalHeight = pageExtra.offsetHeight + 'px';
         }
 
+        // 立即收起
         if (immediate) {
             pageExtra.style.height = totalHeaderHeight + 'px';
             pageExtra.style.overflow = 'hidden';
@@ -514,6 +467,7 @@
             return;
         }
 
+        // 携带动画
         pageExtra.style.overflow = 'hidden';
         const currentHeight = pageExtra.offsetHeight;
         pageExtra.style.height = currentHeight + 'px';
@@ -725,10 +679,6 @@
         #opfphider-cancel:hover {
             background: hsl(var(--hsl-b1));
             transition: background-color .2s;
-        }
-
-        #opfphider-refresh-notification {
-            animation: fadeIn 0.3s ease;
         }
 
         @keyframes fadeIn {
