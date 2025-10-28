@@ -5,6 +5,7 @@
 ![Showcase](./assets/showcase.gif)
 
 一个用户脚本，让你可以选择性地隐藏 osu! 个人资料页面的不同部分，获得更简洁的浏览体验。
+查看论坛帖子 [这里](https://osu.ppy.sh/community/forums/topics/2145958?n=1)。
 
 ## 功能特性
 
