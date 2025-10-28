@@ -24,9 +24,8 @@
 ## 安装
 
 1. 安装用户脚本管理器，如 [Tampermonkey](https://www.tampermonkey.net/) 或 [Greasemonkey](https://www.greasespot.net/)
-2. 选择以下任一链接安装用户脚本：（注意两者功能相同，选择你喜欢的即可）
-   - [ts 编译至 js（推荐）](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/dist/opfphider.user.js)
-   - [纯手写 js](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/src-js/index.user.js)
+2. 点击安装用户脚本：
+   - [Raw File Link](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/dist/opfphider.user.js)
 3. 访问任何 osu! 用户资料页面即可看到效果。然后你就配置完成了!
 4. 确保在用户脚本管理器中开启自动更新以获取最新版本。
 

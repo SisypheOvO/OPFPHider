@@ -27,9 +27,8 @@ A userscript that allows you to selectively hide different sections of osu! prof
 ## Installation
 
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Greasemonkey](https://www.greasespot.net/)
-2. Choose one of the following links to install the userscript: (NOTE that both works the same so just pick one you like)
-   - [ts compiled (recommended)](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/dist/opfphider.user.js)
-   - [js handcrafted](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/src-js/index.user.js)
+2. Install the userscript:
+   - [Raw File Link](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/dist/opfphider.user.js)
 3. Visit any osu! user profile page to see it in action. You are all set then.
 4. make sure to turn on AutoUpdate in your userscript manager to get the latest updates.
 
