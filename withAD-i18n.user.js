@@ -638,8 +638,9 @@
             margin-top: -3px !important;
         }
 
-        .page-extra--userpage {
-            padding-right: 40px !important;
+        .page-extra--userpage .sortable-handle--profile-page-extra {
+            margin-right: 54px !important;
+            margin-top: -3px !important;
         }
 
         .page-extra__actions {
