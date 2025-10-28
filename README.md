@@ -5,7 +5,7 @@
 ![Showcase](./assets/showcase.gif)
 
 A userscript that allows you to selectively hide different sections of osu! profile pages for a cleaner viewing experience.
-Check out the Forum post [here](https://osu.ppy.sh/community/forums/topics/2145958?n=1).
+Check out the Forum post [Development > Osu! Profile Hider | user script](https://osu.ppy.sh/community/forums/topics/2145958?n=1).
 
 > [!NOTE]
 > README中文版请见 [README-zh.md](./README-zh.md)
