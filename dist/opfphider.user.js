@@ -603,11 +603,7 @@
         }
         init() {
             DomUtils.injectStyles();
-            this.addSettingsButton();
-            this.pageHandler.processRemoveStates();
-            TARGET_PAGE_IDS.forEach((pageId) => {
-                this.pageHandler.insertButtonForPage(pageId);
-            });
+            this.handlePageUpdate();
             this.observePageChanges();
         }
         addSettingsButton() {
@@ -619,45 +615,33 @@
             settingsBtn.addEventListener("click", () => this.settingsPanel.toggle());
             document.body.appendChild(settingsBtn);
         }
+        handlePageUpdate() {
+            this.addSettingsButton();
+            this.pageHandler.processRemoveStates();
+            TARGET_PAGE_IDS.forEach((pageId) => {
+                this.pageHandler.insertButtonForPage(pageId);
+            });
+        }
         observePageChanges() {
+            document.addEventListener("click", (e) => {
+                const target = e.target;
+                const link = target.closest("a");
+                if (link && link.href === location.href) {
+                    setTimeout(() => {
+                        this.handlePageUpdate();
+                    }, 1000);
+                }
+            }, true);
             const observer = new MutationObserver(() => {
                 const url = location.href;
                 if (url !== this.lastUrl) {
                     this.lastUrl = url;
                     setTimeout(() => {
-                        this.pageHandler.processRemoveStates();
-                        this.addSettingsButton();
-                        TARGET_PAGE_IDS.forEach((pageId) => {
-                            this.pageHandler.insertButtonForPage(pageId);
-                        });
+                        this.handlePageUpdate();
                     }, 1000);
                 }
             });
             observer.observe(document, { subtree: true, childList: true });
-            const pageObserver = new MutationObserver((mutations) => {
-                mutations.forEach((mutation) => {
-                    if (mutation.addedNodes.length) {
-                        mutation.addedNodes.forEach((node) => {
-                            if (node.nodeType === 1) {
-                                const element = node;
-                                if (element.classList && (element.classList.contains("js-sortable--page") || element.querySelector(".js-sortable--page") || element.classList.contains("me-expander") || element.querySelector(".me-expander"))) {
-                                    setTimeout(() => {
-                                        this.pageHandler.processRemoveStates();
-                                        this.addSettingsButton();
-                                        TARGET_PAGE_IDS.forEach((pageId) => {
-                                            this.pageHandler.insertButtonForPage(pageId);
-                                        });
-                                    }, 500);
-                                }
-                            }
-                        });
-                    }
-                });
-            });
-            pageObserver.observe(document.body, {
-                childList: true,
-                subtree: true,
-            });
         }
     }
 
