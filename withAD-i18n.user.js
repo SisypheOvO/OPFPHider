@@ -329,13 +329,13 @@
         // 删除主内容区域
         const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`);
         if (pageContainer) {
-            pageContainer.remove();
+            pageContainer.style.display = 'none';
         }
 
         // 删除标签页导航
-        const tabLink = document.querySelector(`.page-mode--profile-page-extra a[data-page-id="${pageId}"]`);
+        const tabLink = document.querySelector(`.page-mode--profile-page-extra a.page-mode__item.js-sortable--tab.ui-sortable-handle[data-page-id="${pageId}"]`);
         if (tabLink) {
-            tabLink.remove();
+            tabLink.style.display = 'none';
         }
     }
 
@@ -518,36 +518,6 @@
         });
 
         observer.observe(document, { subtree: true, childList: true });
-
-        const pageObserver = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.addedNodes.length) {
-                    mutation.addedNodes.forEach((node) => {
-                        if (node.nodeType === 1) {
-                            if (node.classList && (
-                                node.classList.contains('js-sortable--page') ||
-                                node.querySelector('.js-sortable--page') ||
-                                node.classList.contains('me-expander') ||
-                                node.querySelector('.me-expander')
-                            )) {
-                                setTimeout(() => {
-                                    processRemoveStates();
-                                    addSettingsButton();
-                                    targetPageIds.forEach(pageId => {
-                                        insertButtonForPage(pageId);
-                                    });
-                                }, 500);
-                            }
-                        }
-                    });
-                }
-            });
-        });
-
-        pageObserver.observe(document.body, {
-            childList: true,
-            subtree: true
-        });
     }
 
     const style = document.createElement('style');
