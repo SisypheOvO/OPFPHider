@@ -1,7 +1,7 @@
 import typescript from '@rollup/plugin-typescript';
 
 export default {
-    input: 'src-ts/main.ts',
+    input: 'src/main.ts',
     output: {
         file: 'dist/opfphider.user.js',
         format: 'iife',
