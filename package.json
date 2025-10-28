@@ -1,0 +1,16 @@
+{
+  "name": "opfphider",
+  "version": "1.0.0",
+  "description": "Hide Osu! Profile sections optionally",
+  "type": "module",
+  "scripts": {
+    "build": "rollup -c"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "12.3.0",
+    "rollup": "4.52.5",
+    "typescript": "^5.9.3"
+  },
+  "author": "Sisyphus",
+  "license": "MIT"
+}

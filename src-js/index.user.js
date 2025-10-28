@@ -11,8 +11,8 @@
 // @match        https://osu.ppy.sh/users/*
 // @run-at       document-end
 // @grant        none
-// @downloadURL https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/index.user.js
-// @updateURL https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/index.user.js
+// @downloadURL https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/src-js/index.user.js
+// @updateURL https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/src-js/index.user.js
 // ==/UserScript==
 
 (function () {

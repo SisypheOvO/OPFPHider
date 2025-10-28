@@ -23,19 +23,24 @@ A userscript that allows you to selectively hide different sections of osu! prof
 
 ## Installation
 
-> [!IMPORTANT]
-> v4 is recommended for better performance.
-
 1. Install a userscript manager like [Tampermonkey](https://www.tampermonkey.net/) or [Greasemonkey](https://www.greasespot.net/)
-2. Create a new userscript in your manager and copy-paste the code from `./withAD-i18n.user.js`.
-3. Save and enable the script
-4. Visit any osu! user profile page to see it in action. You are all set then.
-5. make sure to turn on AutoUpdate in your userscript manager to get the latest updates.
+2. Choose one of the following links to install the userscript: (NOTE that both works the same so just pick one you like)
+   - [ts compiled (recommended)](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/dist/opfphider.user.js)
+   - [js handcrafted (legacy)](https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/src-js/index.user.js)
+3. Visit any osu! user profile page to see it in action. You are all set then.
+4. make sure to turn on AutoUpdate in your userscript manager to get the latest updates.
 ![autoUpdate](./assets/autoUpdate.png)
 
 ## Contributing
 
 Feel free to submit issues and pull requests to improve the script.
+
+### Development
+
+```bash
+npm i # install dependencies
+npm run build # build the userscript
+```
 
 ## About osu-web enhanced
 
