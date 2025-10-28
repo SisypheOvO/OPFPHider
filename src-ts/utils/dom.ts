@@ -100,7 +100,7 @@ export class DomUtils {
             right: 16px;
             width: 36px;
             height: 36px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            background: hsl(var(--hsl-h2));
             color: white;
             border: none;
             border-radius: 50%;
@@ -108,11 +108,13 @@ export class DomUtils {
             font-size: 16px;
             z-index: 10000;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         #opfphider-settings-btn:hover {
-            transform: scale(1.1) rotate(90deg);
+            background: hsl(var(--hsl-h1));
+            filter: brightness(0.95);
+            transform: scale(1.05) rotate(90deg);
         }
 
         /* 折叠按钮 */
