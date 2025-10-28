@@ -1,2 +1,5 @@
 .vscode/*
 !.vscode/settings.json
+default.user.js
+withA-Delete.user.js
+withAutoCollapse.user.js

@@ -2,7 +2,7 @@
 // @name         OPFPHider
 // @name:zh-CN   OPFP隐藏器
 // @namespace    URL
-// @version      0.8
+// @version      1.0.0
 // @description  Hide Osu! Profile sections optionally
 // @description:zh-CN  可选地隐藏Osu!个人资料的各个不同部分
 // @author       Sisyphus
@@ -10,8 +10,9 @@
 // @homepage     https://github.com/SisypheOvO
 // @match        https://osu.ppy.sh/users/*
 // @run-at       document-end
-// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
 // @grant        none
+// @downloadURL https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/withAD-i18n.user.js
+// @updateURL https://raw.githubusercontent.com/SisypheOvO/OPFPHider/main/withAD-i18n.user.js
 // ==/UserScript==
 
 (function () {
