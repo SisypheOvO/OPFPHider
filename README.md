@@ -6,6 +6,9 @@
 
 A userscript that allows you to selectively hide different sections of osu! profile pages for a cleaner viewing experience.
 
+> [!NOTE]
+> README中文版请见 [README-zh.md](./README-zh.md)
+
 ## Features
 
 - Hide specific sections of osu! user profiles:
