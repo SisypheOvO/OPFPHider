@@ -634,7 +634,7 @@
             }, true);
             const observer = new MutationObserver(() => {
                 const url = location.href;
-                if (url !== this.lastUrl) {
+                if (url !== this.lastUrl && url.startsWith("https://osu.ppy.sh/users/")) {
                     this.lastUrl = url;
                     setTimeout(() => {
                         this.handlePageUpdate();
