@@ -9,7 +9,7 @@ export default {
 // @name         OPFPHider
 // @name:zh-CN   OPFP隐藏器
 // @namespace    URL
-// @version      2.2.0
+// @version      2.2.5
 // @description  Hide Osu! Profile sections optionally
 // @description:zh-CN  可选地隐藏Osu!个人资料的各个不同部分
 // @author       Sisyphus
