@@ -55,7 +55,6 @@ export class PageHandler {
 
         targetElement.appendChild(button)
         await this.initializePageState(pageId, button)
-        console.log(`[OPFP Hider] Button inserted for: ${pageId}`)
     }
 
     private async initializePageState(pageId: string, button: HTMLButtonElement): Promise<void> {
