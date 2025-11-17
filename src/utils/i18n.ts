@@ -9,7 +9,7 @@ export class I18nManager {
     }
 
     private detectLanguage(): string {
-        const storedLang = StorageManager.getLanguage()
+        const storedLang = StorageManager.language.get()
         if (storedLang && I18N[storedLang as keyof typeof I18N]) {
             return storedLang
         }
@@ -43,7 +43,7 @@ export class I18nManager {
     public setLanguage(lang: string): void {
         if (I18N[lang as keyof typeof I18N]) {
             this.currentLanguage = lang
-            StorageManager.setLanguage(lang)
+            StorageManager.language.set(lang)
         }
     }
 

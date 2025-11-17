@@ -2,7 +2,7 @@
 // @name         OPFPHider
 // @name:zh-CN   OPFP隐藏器
 // @namespace    URL
-// @version      2.3.1
+// @version      2.3.2
 // @description  Hide Osu! Profile sections optionally
 // @description:zh-CN  可选地隐藏Osu!个人资料的各个不同部分
 // @author       Sisyphus
@@ -23,6 +23,11 @@
     const CHEVRON_ICONS = {
         DOWN: '<path d="M4 6L8 10L12 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0, 1)"/>',
         UP: '<path d="M4 10L8 6L12 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" transform="translate(0, -1)"/>',
+    };
+    const STORAGE_KEYS = {
+        COLLAPSED: "opfphider-collapsed-states",
+        REMOVED: "opfphider-remove-states",
+        LANGUAGE: "opfphider-language",
     };
     const I18N = {
         en: {
@@ -64,54 +69,41 @@
     };
 
     class StorageManager {
-        static loadStates(key) {
+        static get(key, fallback) {
             try {
-                const stored = localStorage.getItem(key);
-                return stored ? JSON.parse(stored) : {};
+                const value = localStorage.getItem(key);
+                if (!value)
+                    return fallback;
+                return typeof fallback === "object"
+                    ? JSON.parse(value)
+                    : value;
+            }
+            catch {
+                return fallback;
+            }
+        }
+        static set(key, value) {
+            try {
+                const data = typeof value === "object" ? JSON.stringify(value) : value;
+                localStorage.setItem(key, data);
             }
             catch (e) {
-                console.error("Failed to load storage states:", e);
-                return {};
-            }
-        }
-        static saveStates(key, states) {
-            try {
-                localStorage.setItem(key, JSON.stringify(states));
-            }
-            catch (e) {
-                console.error("Failed to save states:", e);
-            }
-        }
-        static loadCollapsedStates() {
-            return this.loadStates("opfphider-collapsed-states");
-        }
-        static loadRemoveStates() {
-            return this.loadStates("opfphider-remove-states");
-        }
-        static saveCollapsedStates(states) {
-            this.saveStates("opfphider-collapsed-states", states);
-        }
-        static saveRemoveStates(states) {
-            this.saveStates("opfphider-remove-states", states);
-        }
-        static getLanguage() {
-            try {
-                return localStorage.getItem("opfphider-language") || "en";
-            }
-            catch (e) {
-                console.error("Failed to load language:", e);
-                return "en";
-            }
-        }
-        static setLanguage(lang) {
-            try {
-                localStorage.setItem("opfphider-language", lang);
-            }
-            catch (e) {
-                console.error("Failed to save language:", e);
+                console.error("[Storage] Failed to save:", e);
             }
         }
     }
+    StorageManager.collapsed = {
+        get: () => StorageManager.get(STORAGE_KEYS.COLLAPSED, {}),
+        set: (states) => StorageManager.set(STORAGE_KEYS.COLLAPSED, states),
+    };
+    StorageManager.removed = {
+        get: () => StorageManager.get(STORAGE_KEYS.REMOVED, {}),
+        set: (states) => StorageManager.set(STORAGE_KEYS.REMOVED, states),
+    };
+    StorageManager.language = {
+        get: () => StorageManager.get(STORAGE_KEYS.LANGUAGE, "en"),
+        set: (lang) => StorageManager.set(STORAGE_KEYS.LANGUAGE, lang),
+    };
 
     // src/utils/dom.ts
     class DomUtils {
@@ -383,7 +375,7 @@
             }, 1000);
         }
         async processRemoveStates() {
-            const removeStates = StorageManager.loadRemoveStates();
+            const removeStates = StorageManager.removed.get();
             for (const pageId of TARGET_PAGE_IDS) {
                 if (removeStates[pageId]) {
                     await DomWaiter.waitForPageElement(pageId, 3000);
@@ -392,7 +384,7 @@
             }
         }
         async insertButtonForPage(pageId) {
-            const removeStates = StorageManager.loadRemoveStates();
+            const removeStates = StorageManager.removed.get();
             if (removeStates[pageId]) {
                 return;
             }
@@ -416,7 +408,7 @@
             await this.initializePageState(pageId, button);
         }
         async initializePageState(pageId, button) {
-            const storedStates = StorageManager.loadCollapsedStates();
+            const storedStates = StorageManager.collapsed.get();
             const isCollapsed = storedStates.hasOwnProperty(pageId) ? storedStates[pageId] : false;
             this.pageStates.set(pageId, isCollapsed);
             // 等待下一帧确保 DOM 更新
@@ -497,8 +489,8 @@
             this.createPanel();
         }
         createPanel() {
-            const storedStates = StorageManager.loadCollapsedStates();
-            const removeStates = StorageManager.loadRemoveStates();
+            const storedStates = StorageManager.collapsed.get();
+            const removeStates = StorageManager.removed.get();
             const pageNames = DomUtils.getAllPageNames();
             const currentLang = this.i18n.getCurrentLanguage();
             const panel = document.createElement("div");
@@ -588,13 +580,13 @@
                 const input = checkbox;
                 newCollapseStates[input.dataset.page] = input.checked;
             });
-            StorageManager.saveCollapsedStates(newCollapseStates);
             const newRemoveStates = {};
             removeCheckboxes.forEach((checkbox) => {
                 const input = checkbox;
                 newRemoveStates[input.dataset.page] = input.checked;
             });
-            StorageManager.saveRemoveStates(newRemoveStates);
+            StorageManager.collapsed.set(newCollapseStates);
+            StorageManager.removed.set(newRemoveStates);
             panel.remove();
         }
     }
@@ -604,7 +596,7 @@
             this.currentLanguage = this.detectLanguage();
         }
         detectLanguage() {
-            const storedLang = StorageManager.getLanguage();
+            const storedLang = StorageManager.language.get();
             if (storedLang && I18N[storedLang]) {
                 return storedLang;
             }
@@ -635,7 +627,7 @@
         setLanguage(lang) {
             if (I18N[lang]) {
                 this.currentLanguage = lang;
-                StorageManager.setLanguage(lang);
+                StorageManager.language.set(lang);
             }
         }
         getCurrentLanguage() {

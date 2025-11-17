@@ -22,8 +22,8 @@ export class SettingsPanel {
     }
 
     private createPanel(): void {
-        const storedStates = StorageManager.loadCollapsedStates()
-        const removeStates = StorageManager.loadRemoveStates()
+        const storedStates = StorageManager.collapsed.get()
+        const removeStates = StorageManager.removed.get()
         const pageNames = DomUtils.getAllPageNames()
         const currentLang = this.i18n.getCurrentLanguage()
 
@@ -127,14 +127,15 @@ export class SettingsPanel {
             const input = checkbox as HTMLInputElement
             newCollapseStates[input.dataset.page!] = input.checked
         })
-        StorageManager.saveCollapsedStates(newCollapseStates)
 
         const newRemoveStates: PageStates = {}
         removeCheckboxes.forEach((checkbox: Element) => {
             const input = checkbox as HTMLInputElement
             newRemoveStates[input.dataset.page!] = input.checked
         })
-        StorageManager.saveRemoveStates(newRemoveStates)
+
+        StorageManager.collapsed.set(newCollapseStates)
+        StorageManager.removed.set(newRemoveStates)
 
         panel.remove()
     }

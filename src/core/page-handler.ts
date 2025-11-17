@@ -16,7 +16,7 @@ export class PageHandler {
     }
 
     public async processRemoveStates(): Promise<void> {
-        const removeStates = StorageManager.loadRemoveStates()
+        const removeStates = StorageManager.removed.get()
 
         for (const pageId of TARGET_PAGE_IDS) {
             if (removeStates[pageId]) {
@@ -27,7 +27,7 @@ export class PageHandler {
     }
 
     public async insertButtonForPage(pageId: string): Promise<void> {
-        const removeStates = StorageManager.loadRemoveStates()
+        const removeStates = StorageManager.removed.get()
         if (removeStates[pageId]) {
             return
         }
@@ -58,7 +58,7 @@ export class PageHandler {
     }
 
     private async initializePageState(pageId: string, button: HTMLButtonElement): Promise<void> {
-        const storedStates = StorageManager.loadCollapsedStates()
+        const storedStates = StorageManager.collapsed.get()
         const isCollapsed = storedStates.hasOwnProperty(pageId) ? storedStates[pageId] : false
         this.pageStates.set(pageId, isCollapsed)
 

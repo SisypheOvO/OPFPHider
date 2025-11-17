@@ -1,54 +1,40 @@
 import { PageStates } from "@/types"
+import { STORAGE_KEYS } from "@/constants"
 
 export class StorageManager {
-    static loadStates(key: string): PageStates {
+    private static get<T>(key: string, fallback: T): T {
         try {
-            const stored = localStorage.getItem(key)
-            return stored ? JSON.parse(stored) : {}
-        } catch (e) {
-            console.error("Failed to load storage states:", e)
-            return {}
+            const value = localStorage.getItem(key)
+            if (!value) return fallback
+            return typeof fallback === "object"
+                ? (JSON.parse(value) as T)
+                : (value as unknown as T)
+        } catch {
+            return fallback
         }
     }
 
-    static saveStates(key: string, states: PageStates): void {
+    private static set(key: string, value: any): void {
         try {
-            localStorage.setItem(key, JSON.stringify(states))
+            const data = typeof value === "object" ? JSON.stringify(value) : value
+            localStorage.setItem(key, data)
         } catch (e) {
-            console.error("Failed to save states:", e)
+            console.error("[Storage] Failed to save:", e)
         }
     }
 
-    static loadCollapsedStates(): PageStates {
-        return this.loadStates("opfphider-collapsed-states")
+    static collapsed = {
+        get: (): PageStates => StorageManager.get(STORAGE_KEYS.COLLAPSED, {}),
+        set: (states: PageStates) => StorageManager.set(STORAGE_KEYS.COLLAPSED, states),
     }
 
-    static loadRemoveStates(): PageStates {
-        return this.loadStates("opfphider-remove-states")
+    static removed = {
+        get: (): PageStates => StorageManager.get(STORAGE_KEYS.REMOVED, {}),
+        set: (states: PageStates) => StorageManager.set(STORAGE_KEYS.REMOVED, states),
     }
 
-    static saveCollapsedStates(states: PageStates): void {
-        this.saveStates("opfphider-collapsed-states", states)
-    }
-
-    static saveRemoveStates(states: PageStates): void {
-        this.saveStates("opfphider-remove-states", states)
-    }
-
-    static getLanguage(): string {
-        try {
-            return localStorage.getItem("opfphider-language") || "en"
-        } catch (e) {
-            console.error("Failed to load language:", e)
-            return "en"
-        }
-    }
-
-    static setLanguage(lang: string): void {
-        try {
-            localStorage.setItem("opfphider-language", lang)
-        } catch (e) {
-            console.error("Failed to save language:", e)
-        }
+    static language = {
+        get: (): string => StorageManager.get(STORAGE_KEYS.LANGUAGE, "en"),
+        set: (lang: string) => StorageManager.set(STORAGE_KEYS.LANGUAGE, lang),
     }
 }
