@@ -1,8 +1,8 @@
-import { TARGET_PAGE_IDS, I18N } from "../constants"
-import { StorageManager } from "../utils/storage"
-import { DomUtils } from "../utils/dom"
-import { I18nManager } from "../utils/i18n"
-import { PageStates } from "../types"
+import { TARGET_PAGE_IDS, I18N } from "@/constants"
+import { StorageManager } from "@/utils/storage"
+import { DomUtils } from "@/utils/dom"
+import { I18nManager } from "@/utils/i18n"
+import { PageStates } from "@/types"
 
 export class SettingsPanel {
     private i18n: I18nManager

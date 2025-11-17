@@ -1,64 +1,82 @@
-import { TARGET_PAGE_IDS } from "../constants"
-import { StorageManager } from "../utils/storage"
-import { DomUtils } from "../utils/dom"
+import { TARGET_PAGE_IDS } from "@/constants"
+import { StorageManager } from "@/utils/storage"
+import { DomUtils } from "@/utils/dom"
+import { DomWaiter } from "@/utils/dom-waiter"
 
 export class PageHandler {
     private pageStates: Map<string, boolean> = new Map()
     private isInitializing: boolean = true
+    private initTimer: number | null = null
 
     constructor() {
-        setTimeout(() => {
+        this.initTimer = window.setTimeout(() => {
             this.isInitializing = false
-        }, 2000)
+            this.initTimer = null
+        }, 1000)
     }
 
-    public processRemoveStates(): void {
+    public async processRemoveStates(): Promise<void> {
         const removeStates = StorageManager.loadRemoveStates()
-        TARGET_PAGE_IDS.forEach((pageId) => {
+
+        for (const pageId of TARGET_PAGE_IDS) {
             if (removeStates[pageId]) {
+                await DomWaiter.waitForPageElement(pageId, 3000)
                 DomUtils.removePageElement(pageId)
             }
-        })
+        }
     }
 
-    public insertButtonForPage(pageId: string): void {
+    public async insertButtonForPage(pageId: string): Promise<void> {
         const removeStates = StorageManager.loadRemoveStates()
         if (removeStates[pageId]) {
             return
         }
 
-        const selector = `.osu-layout.osu-layout--full .osu-page.osu-page--generic-compact .user-profile-pages.ui-sortable .js-sortable--page[data-page-id="${pageId}"] .page-extra`
-        const targetElement = document.querySelector(selector)
+        const selector = `.js-sortable--page[data-page-id="${pageId}"] .page-extra`
 
-        if (targetElement && !targetElement.querySelector(".custom-inserted-button")) {
-            const button = DomUtils.createCollapseButton()
+        const targetElement = await DomWaiter.waitForElement(selector, 3000)
 
-            button.addEventListener("click", (e) => {
-                e.stopPropagation()
-                e.preventDefault()
-                this.handleButtonClick(pageId, button)
-            })
-            targetElement.appendChild(button)
-            this.initializePageState(pageId, button)
+        if (!targetElement) {
+            console.warn(`[OPFP Hider] Element not found for page: ${pageId}`)
+            return
         }
+
+        if (targetElement.querySelector(".custom-inserted-button")) {
+            console.log(`[OPFP Hider] Button already exists for: ${pageId}`)
+            return
+        }
+
+        const button = DomUtils.createCollapseButton()
+        button.addEventListener("click", (e) => {
+            e.stopPropagation()
+            e.preventDefault()
+            this.handleButtonClick(pageId, button)
+        })
+
+        targetElement.appendChild(button)
+        await this.initializePageState(pageId, button)
+        console.log(`[OPFP Hider] Button inserted for: ${pageId}`)
     }
 
-    private initializePageState(pageId: string, button: HTMLButtonElement): void {
+    private async initializePageState(pageId: string, button: HTMLButtonElement): Promise<void> {
         const storedStates = StorageManager.loadCollapsedStates()
         const isCollapsed = storedStates.hasOwnProperty(pageId) ? storedStates[pageId] : false
         this.pageStates.set(pageId, isCollapsed)
 
-        setTimeout(() => {
-            DomUtils.updateButtonIcon(button, isCollapsed)
-            if (isCollapsed) {
-                this.collapsePage(pageId, true)
-            }
-        }, 500)
+        // 等待下一帧确保 DOM 更新
+        await new Promise((resolve) => requestAnimationFrame(resolve))
+
+        DomUtils.updateButtonIcon(button, isCollapsed)
+        if (isCollapsed) {
+            this.collapsePage(pageId, true)
+        }
     }
 
     public handleButtonClick(pageId: string, button: HTMLButtonElement): void {
-        console.log("Button clicked for page:", pageId)
-        if (this.isInitializing) return
+        if (this.isInitializing) {
+            console.log("[OPFP Hider] Still initializing, skip button click")
+            return
+        }
 
         const isCurrentlyCollapsed = this.pageStates.get(pageId) || false
         const newState = !isCurrentlyCollapsed
@@ -97,8 +115,7 @@ export class PageHandler {
         pageExtra.style.height = currentHeight + "px"
         pageExtra.style.transition = "height 0.3s ease"
 
-        // Force reflow
-        pageExtra.offsetHeight
+        pageExtra.offsetHeight // Force reflow
 
         setTimeout(() => {
             pageExtra.style.height = totalHeaderHeight + "px"

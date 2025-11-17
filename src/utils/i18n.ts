@@ -1,4 +1,4 @@
-import { I18N } from "../constants"
+import { I18N } from "@/constants"
 import { StorageManager } from "./storage"
 
 export class I18nManager {

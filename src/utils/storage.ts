@@ -1,4 +1,4 @@
-import { PageStates } from "../types"
+import { PageStates } from "@/types"
 
 export class StorageManager {
     static loadStates(key: string): PageStates {

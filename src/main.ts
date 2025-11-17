@@ -1,4 +1,4 @@
-import { OPFPHiderManager } from "./core/manager"
+import { OPFPHiderManager } from "@/core/manager"
 
 function init(): void {
     if (document.readyState === "loading") {

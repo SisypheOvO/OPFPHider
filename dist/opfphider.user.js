@@ -2,7 +2,7 @@
 // @name         OPFPHider
 // @name:zh-CN   OPFP隐藏器
 // @namespace    URL
-// @version      2.2.5
+// @version      2.3.0
 // @description  Hide Osu! Profile sections optionally
 // @description:zh-CN  可选地隐藏Osu!个人资料的各个不同部分
 // @author       Sisyphus
@@ -332,55 +332,106 @@
         }
     }
 
+    class DomWaiter {
+        /**
+         * 等待元素出现，针对 Turbo 优化
+         */
+        static waitForElement(selector, timeout = 5000) {
+            return new Promise((resolve) => {
+                // 先立即检查
+                const element = document.querySelector(selector);
+                if (element) {
+                    resolve(element);
+                    return;
+                }
+                let timer = null;
+                const observer = new MutationObserver(() => {
+                    const element = document.querySelector(selector);
+                    if (element) {
+                        observer.disconnect();
+                        if (timer !== null)
+                            clearTimeout(timer);
+                        resolve(element);
+                    }
+                });
+                // 只监听 body (Turbo 渲染主要在 body 内部进行)
+                observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                });
+                timer = window.setTimeout(() => {
+                    observer.disconnect();
+                    console.warn(`[DomWaiter] Timeout waiting for: ${selector}`);
+                    resolve(null);
+                }, timeout);
+            });
+        }
+        static waitForPageElement(pageId, timeout = 5000) {
+            const selector = `.js-sortable--page[data-page-id="${pageId}"]`;
+            return this.waitForElement(selector, timeout);
+        }
+    }
+
     class PageHandler {
         constructor() {
             this.pageStates = new Map();
             this.isInitializing = true;
-            setTimeout(() => {
+            this.initTimer = null;
+            this.initTimer = window.setTimeout(() => {
                 this.isInitializing = false;
-            }, 2000);
+                this.initTimer = null;
+            }, 1000);
         }
-        processRemoveStates() {
+        async processRemoveStates() {
             const removeStates = StorageManager.loadRemoveStates();
-            TARGET_PAGE_IDS.forEach((pageId) => {
+            for (const pageId of TARGET_PAGE_IDS) {
                 if (removeStates[pageId]) {
+                    await DomWaiter.waitForPageElement(pageId, 3000);
                     DomUtils.removePageElement(pageId);
                 }
-            });
+            }
         }
-        insertButtonForPage(pageId) {
+        async insertButtonForPage(pageId) {
             const removeStates = StorageManager.loadRemoveStates();
             if (removeStates[pageId]) {
                 return;
             }
-            const selector = `.osu-layout.osu-layout--full .osu-page.osu-page--generic-compact .user-profile-pages.ui-sortable .js-sortable--page[data-page-id="${pageId}"] .page-extra`;
-            const targetElement = document.querySelector(selector);
-            if (targetElement && !targetElement.querySelector(".custom-inserted-button")) {
-                const button = DomUtils.createCollapseButton();
-                button.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    this.handleButtonClick(pageId, button);
-                });
-                targetElement.appendChild(button);
-                this.initializePageState(pageId, button);
+            const selector = `.js-sortable--page[data-page-id="${pageId}"] .page-extra`;
+            const targetElement = await DomWaiter.waitForElement(selector, 3000);
+            if (!targetElement) {
+                console.warn(`[OPFP Hider] Element not found for page: ${pageId}`);
+                return;
             }
+            if (targetElement.querySelector(".custom-inserted-button")) {
+                console.log(`[OPFP Hider] Button already exists for: ${pageId}`);
+                return;
+            }
+            const button = DomUtils.createCollapseButton();
+            button.addEventListener("click", (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                this.handleButtonClick(pageId, button);
+            });
+            targetElement.appendChild(button);
+            await this.initializePageState(pageId, button);
+            console.log(`[OPFP Hider] Button inserted for: ${pageId}`);
         }
-        initializePageState(pageId, button) {
+        async initializePageState(pageId, button) {
             const storedStates = StorageManager.loadCollapsedStates();
             const isCollapsed = storedStates.hasOwnProperty(pageId) ? storedStates[pageId] : false;
             this.pageStates.set(pageId, isCollapsed);
-            setTimeout(() => {
-                DomUtils.updateButtonIcon(button, isCollapsed);
-                if (isCollapsed) {
-                    this.collapsePage(pageId, true);
-                }
-            }, 500);
+            // 等待下一帧确保 DOM 更新
+            await new Promise((resolve) => requestAnimationFrame(resolve));
+            DomUtils.updateButtonIcon(button, isCollapsed);
+            if (isCollapsed) {
+                this.collapsePage(pageId, true);
+            }
         }
         handleButtonClick(pageId, button) {
-            console.log("Button clicked for page:", pageId);
-            if (this.isInitializing)
+            if (this.isInitializing) {
+                console.log("[OPFP Hider] Still initializing, skip button click");
                 return;
+            }
             const isCurrentlyCollapsed = this.pageStates.get(pageId) || false;
             const newState = !isCurrentlyCollapsed;
             this.pageStates.set(pageId, newState);
@@ -411,8 +462,7 @@
             const currentHeight = pageExtra.offsetHeight;
             pageExtra.style.height = currentHeight + "px";
             pageExtra.style.transition = "height 0.3s ease";
-            // Force reflow
-            pageExtra.offsetHeight;
+            pageExtra.offsetHeight; // Force reflow
             setTimeout(() => {
                 pageExtra.style.height = totalHeaderHeight + "px";
             }, 10);
@@ -596,15 +646,32 @@
 
     class OPFPHiderManager {
         constructor() {
+            this.isProcessing = false;
             this.i18n = new I18nManager();
             this.pageHandler = new PageHandler();
             this.settingsPanel = new SettingsPanel(this.i18n);
-            this.lastUrl = location.href;
         }
         init() {
             DomUtils.injectStyles();
+            this.setupTurboListeners();
             this.handlePageUpdate();
-            this.observePageChanges();
+        }
+        setupTurboListeners() {
+            // Turbo 渲染完成后触发
+            document.addEventListener("turbo:render", () => {
+                console.log("[OPFP Hider] Turbo render event");
+                this.handlePageUpdate();
+            });
+            // Turbo 加载完成后触发（包含异步内容）
+            document.addEventListener("turbo:load", () => {
+                console.log("[OPFP Hider] Turbo load event");
+                this.handlePageUpdate();
+            });
+            // 备用：监听 turbo:frame-render（如果使用了 Turbo Frames）
+            document.addEventListener("turbo:frame-render", () => {
+                console.log("[OPFP Hider] Turbo frame render event");
+                this.handlePageUpdate();
+            });
         }
         addSettingsButton() {
             if (document.querySelector("#opfphider-settings-btn"))
@@ -615,33 +682,32 @@
             settingsBtn.addEventListener("click", () => this.settingsPanel.toggle());
             document.body.appendChild(settingsBtn);
         }
-        handlePageUpdate() {
-            this.addSettingsButton();
-            this.pageHandler.processRemoveStates();
-            TARGET_PAGE_IDS.forEach((pageId) => {
-                this.pageHandler.insertButtonForPage(pageId);
-            });
-        }
-        observePageChanges() {
-            document.addEventListener("click", (e) => {
-                const target = e.target;
-                const link = target.closest("a");
-                if (link && link.href === location.href) {
-                    setTimeout(() => {
-                        this.handlePageUpdate();
-                    }, 1000);
-                }
-            }, true);
-            const observer = new MutationObserver(() => {
-                const url = location.href;
-                if (url !== this.lastUrl && url.startsWith("https://osu.ppy.sh/users/")) {
-                    this.lastUrl = url;
-                    setTimeout(() => {
-                        this.handlePageUpdate();
-                    }, 1000);
-                }
-            });
-            observer.observe(document, { subtree: true, childList: true });
+        async handlePageUpdate() {
+            // 防止重复处理
+            if (this.isProcessing) {
+                console.log("[OPFP Hider] Already processing, skip");
+                return;
+            }
+            // 只在用户个人页面执行
+            if (!location.pathname.startsWith("/users/")) {
+                console.log("[OPFP Hider] Not on user profile page");
+                return;
+            }
+            this.isProcessing = true;
+            console.log("[OPFP Hider] Start processing page");
+            try {
+                this.addSettingsButton();
+                await this.pageHandler.processRemoveStates();
+                // 并发插入
+                await Promise.all(TARGET_PAGE_IDS.map((pageId) => this.pageHandler.insertButtonForPage(pageId)));
+                console.log("[OPFP Hider] Page processing complete");
+            }
+            catch (error) {
+                console.error("[OPFP Hider] Error updating page:", error);
+            }
+            finally {
+                this.isProcessing = false;
+            }
         }
     }
 

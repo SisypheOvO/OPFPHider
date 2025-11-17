@@ -1,5 +1,5 @@
 // src/utils/dom.ts
-import { TARGET_PAGE_IDS, CHEVRON_ICONS } from "../constants"
+import { TARGET_PAGE_IDS, CHEVRON_ICONS } from "@/constants"
 
 export class DomUtils {
     static getPageName(pageId: string): string {
