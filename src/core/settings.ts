@@ -84,7 +84,7 @@ export class SettingsPanel {
           >
           ${pageNames[pageId]}
         </label>
-      `
+      `,
       ).join("")}
 
       <div style="margin-top: 20px; font-size: 12px; color: #fff; margin-bottom: 10px; font-weight: bold;">
@@ -101,7 +101,7 @@ export class SettingsPanel {
           >
           ${pageNames[pageId]}
         </label>
-      `
+      `,
       ).join("")}
 
       <div style="margin-top: 20px; display: flex; gap: 10px;">

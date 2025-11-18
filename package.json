@@ -4,10 +4,12 @@
   "description": "Hide Osu! Profile sections optionally",
   "type": "module",
   "scripts": {
+    "format": "prettier --write ./src/**/*.{ts,tsx,js,jsx,json,css,scss,less,html} --end-of-line auto",
     "build": "rollup -c"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "12.3.0",
+    "prettier": "3.6.2",
     "rollup": "4.53.2",
     "tslib": "2.8.1",
     "typescript": "^5.9.3"

@@ -70,15 +70,15 @@ export class DomUtils {
     }
 
     static removePageElement(pageId: string): void {
-        const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`) as HTMLElement | null;
+        const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`) as HTMLElement | null
         if (pageContainer) {
-            pageContainer.style.display = 'none';
+            pageContainer.style.display = "none"
         }
 
         // 删除标签页导航
-        const tabLink = document.querySelector(`.page-mode--profile-page-extra a.page-mode__item.js-sortable--tab.ui-sortable-handle[data-page-id="${pageId}"]`) as HTMLElement | null;
+        const tabLink = document.querySelector(`.page-mode--profile-page-extra a.page-mode__item.js-sortable--tab.ui-sortable-handle[data-page-id="${pageId}"]`) as HTMLElement | null
         if (tabLink) {
-            tabLink.style.display = 'none';
+            tabLink.style.display = "none"
         }
     }
 

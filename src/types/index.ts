@@ -1,11 +1,11 @@
 export interface PageStates {
-  [pageId: string]: boolean;
+    [pageId: string]: boolean
 }
 
 export interface I18nStrings {
-  [key: string]: {
-    [lang: string]: string;
-  };
+    [key: string]: {
+        [lang: string]: string
+    }
 }
 
-export type PageAction = 'collapse' | 'remove';
+export type PageAction = "collapse" | "remove"

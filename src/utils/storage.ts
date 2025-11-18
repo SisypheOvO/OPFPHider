@@ -6,9 +6,7 @@ export class StorageManager {
         try {
             const value = localStorage.getItem(key)
             if (!value) return fallback
-            return typeof fallback === "object"
-                ? (JSON.parse(value) as T)
-                : (value as unknown as T)
+            return typeof fallback === "object" ? (JSON.parse(value) as T) : (value as unknown as T)
         } catch {
             return fallback
         }
