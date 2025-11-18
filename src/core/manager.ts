@@ -9,11 +9,13 @@ export class OPFPHiderManager {
     private settingsPanel: SettingsPanel
     private i18n: I18nManager
     private isProcessing: boolean = false
+    private settingsButtonHandler: () => void
 
     constructor() {
         this.i18n = new I18nManager()
         this.pageHandler = new PageHandler()
         this.settingsPanel = new SettingsPanel(this.i18n)
+        this.settingsButtonHandler = () => this.settingsPanel.toggle()
     }
 
     public init(): void {
@@ -26,31 +28,38 @@ export class OPFPHiderManager {
         // Turbo 渲染完成后触发
         document.addEventListener("turbo:render", () => {
             console.log("[OPFP Hider] Turbo render event")
+            this.settingsPanel.ensureEventListeners()
             this.handlePageUpdate()
         })
 
         // Turbo 加载完成后触发（包含异步内容）
         document.addEventListener("turbo:load", () => {
             console.log("[OPFP Hider] Turbo load event")
+            this.settingsPanel.ensureEventListeners()
             this.handlePageUpdate()
         })
 
         // 备用：监听 turbo:frame-render（如果使用了 Turbo Frames）
         document.addEventListener("turbo:frame-render", () => {
             console.log("[OPFP Hider] Turbo frame render event")
+            this.settingsPanel.ensureEventListeners()
             this.handlePageUpdate()
         })
     }
 
     private addSettingsButton(): void {
-        if (document.querySelector("#opfphider-settings-btn")) return
+        let settingsBtn = document.querySelector("#opfphider-settings-btn") as HTMLButtonElement
 
-        const settingsBtn = document.createElement("button")
-        settingsBtn.id = "opfphider-settings-btn"
-        settingsBtn.innerHTML = "⚙️"
-
-        settingsBtn.addEventListener("click", () => this.settingsPanel.toggle())
-        document.body.appendChild(settingsBtn)
+        if (settingsBtn) {
+            settingsBtn.removeEventListener("click", this.settingsButtonHandler)
+            settingsBtn.addEventListener("click", this.settingsButtonHandler)
+        } else {
+            settingsBtn = document.createElement("button")
+            settingsBtn.id = "opfphider-settings-btn"
+            settingsBtn.innerHTML = "⚙️"
+            settingsBtn.addEventListener("click", this.settingsButtonHandler)
+            document.body.appendChild(settingsBtn)
+        }
     }
 
     private async handlePageUpdate(): Promise<void> {

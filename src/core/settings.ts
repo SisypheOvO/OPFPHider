@@ -6,6 +6,9 @@ import { PageStates } from "@/types"
 
 export class SettingsPanel {
     private i18n: I18nManager
+    private languageChangeHandler?: (e: Event) => void
+    private saveHandler?: () => void
+    private cancelHandler?: () => void
 
     constructor(i18n: I18nManager) {
         this.i18n = i18n
@@ -19,6 +22,31 @@ export class SettingsPanel {
         }
 
         this.createPanel()
+    }
+
+    public ensureEventListeners(): void {
+        const existingPanel = document.querySelector("#opfphider-settings-panel") as HTMLElement
+        if (existingPanel) {
+            this.reattachEventListeners(existingPanel)
+        }
+    }
+
+    private reattachEventListeners(panel: HTMLElement): void {
+        const languageSelect = panel.querySelector("#opfphider-language-select") as HTMLSelectElement
+        const saveButton = panel.querySelector("#opfphider-save") as HTMLButtonElement
+        const cancelButton = panel.querySelector("#opfphider-cancel") as HTMLButtonElement
+
+        if (this.languageChangeHandler) {
+            languageSelect?.removeEventListener("change", this.languageChangeHandler)
+        }
+        if (this.saveHandler) {
+            saveButton?.removeEventListener("click", this.saveHandler)
+        }
+        if (this.cancelHandler) {
+            cancelButton?.removeEventListener("click", this.cancelHandler)
+        }
+
+        this.attachEventListeners(panel)
     }
 
     private createPanel(): void {
@@ -107,15 +135,20 @@ export class SettingsPanel {
         const saveButton = panel.querySelector("#opfphider-save") as HTMLButtonElement
         const cancelButton = panel.querySelector("#opfphider-cancel") as HTMLButtonElement
 
-        languageSelect?.addEventListener("change", (e) => {
+        // 创建命名函数并保存引用
+        this.languageChangeHandler = (e: Event) => {
             const target = e.target as HTMLSelectElement
             this.i18n.setLanguage(target.value)
             panel.remove()
             this.toggle()
-        })
+        }
 
-        saveButton?.addEventListener("click", () => this.saveSettings(panel))
-        cancelButton?.addEventListener("click", () => panel.remove())
+        this.saveHandler = () => this.saveSettings(panel)
+        this.cancelHandler = () => panel.remove()
+
+        languageSelect?.addEventListener("change", this.languageChangeHandler)
+        saveButton?.addEventListener("click", this.saveHandler)
+        cancelButton?.addEventListener("click", this.cancelHandler)
     }
 
     private saveSettings(panel: HTMLElement): void {

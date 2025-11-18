@@ -55,3 +55,7 @@ an awesome userscript for osu webpages. check it out if you like.
 [source code on Gitlab](https://gitlab.com/RockRoller/osu-web-enhanced)
 
 [homepage on osuck.net](https://tools.osuck.net/tool/66e9f4f78a6d5ff8a0fe5be1)
+
+## TODO
+
+- [ ] sometimes `Expander` of osu-web enhanced generates too slow for me to detect. height calculated wrongly

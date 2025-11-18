@@ -2,7 +2,7 @@
 // @name         OPFPHider
 // @name:zh-CN   OPFP隐藏器
 // @namespace    URL
-// @version      2.3.2
+// @version      2.3.3
 // @description  Hide Osu! Profile sections optionally
 // @description:zh-CN  可选地隐藏Osu!个人资料的各个不同部分
 // @author       Sisyphus
@@ -488,6 +488,27 @@
             }
             this.createPanel();
         }
+        ensureEventListeners() {
+            const existingPanel = document.querySelector("#opfphider-settings-panel");
+            if (existingPanel) {
+                this.reattachEventListeners(existingPanel);
+            }
+        }
+        reattachEventListeners(panel) {
+            const languageSelect = panel.querySelector("#opfphider-language-select");
+            const saveButton = panel.querySelector("#opfphider-save");
+            const cancelButton = panel.querySelector("#opfphider-cancel");
+            if (this.languageChangeHandler) {
+                languageSelect?.removeEventListener("change", this.languageChangeHandler);
+            }
+            if (this.saveHandler) {
+                saveButton?.removeEventListener("click", this.saveHandler);
+            }
+            if (this.cancelHandler) {
+                cancelButton?.removeEventListener("click", this.cancelHandler);
+            }
+            this.attachEventListeners(panel);
+        }
         createPanel() {
             const storedStates = StorageManager.collapsed.get();
             const removeStates = StorageManager.removed.get();
@@ -563,14 +584,18 @@
             const languageSelect = panel.querySelector("#opfphider-language-select");
             const saveButton = panel.querySelector("#opfphider-save");
             const cancelButton = panel.querySelector("#opfphider-cancel");
-            languageSelect?.addEventListener("change", (e) => {
+            // 创建命名函数并保存引用
+            this.languageChangeHandler = (e) => {
                 const target = e.target;
                 this.i18n.setLanguage(target.value);
                 panel.remove();
                 this.toggle();
-            });
-            saveButton?.addEventListener("click", () => this.saveSettings(panel));
-            cancelButton?.addEventListener("click", () => panel.remove());
+            };
+            this.saveHandler = () => this.saveSettings(panel);
+            this.cancelHandler = () => panel.remove();
+            languageSelect?.addEventListener("change", this.languageChangeHandler);
+            saveButton?.addEventListener("click", this.saveHandler);
+            cancelButton?.addEventListener("click", this.cancelHandler);
         }
         saveSettings(panel) {
             const collapseCheckboxes = panel.querySelectorAll('input[data-type="collapse"]');
@@ -641,6 +666,7 @@
             this.i18n = new I18nManager();
             this.pageHandler = new PageHandler();
             this.settingsPanel = new SettingsPanel(this.i18n);
+            this.settingsButtonHandler = () => this.settingsPanel.toggle();
         }
         init() {
             DomUtils.injectStyles();
@@ -651,27 +677,35 @@
             // Turbo 渲染完成后触发
             document.addEventListener("turbo:render", () => {
                 console.log("[OPFP Hider] Turbo render event");
+                this.settingsPanel.ensureEventListeners();
                 this.handlePageUpdate();
             });
             // Turbo 加载完成后触发（包含异步内容）
             document.addEventListener("turbo:load", () => {
                 console.log("[OPFP Hider] Turbo load event");
+                this.settingsPanel.ensureEventListeners();
                 this.handlePageUpdate();
             });
             // 备用：监听 turbo:frame-render（如果使用了 Turbo Frames）
             document.addEventListener("turbo:frame-render", () => {
                 console.log("[OPFP Hider] Turbo frame render event");
+                this.settingsPanel.ensureEventListeners();
                 this.handlePageUpdate();
             });
         }
         addSettingsButton() {
-            if (document.querySelector("#opfphider-settings-btn"))
-                return;
-            const settingsBtn = document.createElement("button");
-            settingsBtn.id = "opfphider-settings-btn";
-            settingsBtn.innerHTML = "⚙️";
-            settingsBtn.addEventListener("click", () => this.settingsPanel.toggle());
-            document.body.appendChild(settingsBtn);
+            let settingsBtn = document.querySelector("#opfphider-settings-btn");
+            if (settingsBtn) {
+                settingsBtn.removeEventListener("click", this.settingsButtonHandler);
+                settingsBtn.addEventListener("click", this.settingsButtonHandler);
+            }
+            else {
+                settingsBtn = document.createElement("button");
+                settingsBtn.id = "opfphider-settings-btn";
+                settingsBtn.innerHTML = "⚙️";
+                settingsBtn.addEventListener("click", this.settingsButtonHandler);
+                document.body.appendChild(settingsBtn);
+            }
         }
         async handlePageUpdate() {
             // 防止重复处理
