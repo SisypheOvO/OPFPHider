@@ -2,7 +2,7 @@
 // @name         OPFPHider
 // @name:zh-CN   OPFP隐藏器
 // @namespace    URL
-// @version      2.3.4
+// @version      2.3.5
 // @description  Hide Osu! Profile sections optionally
 // @description:zh-CN  可选地隐藏Osu!个人资料的各个不同部分
 // @author       Sisyphus
@@ -74,9 +74,7 @@
                 const value = localStorage.getItem(key);
                 if (!value)
                     return fallback;
-                return typeof fallback === "object"
-                    ? JSON.parse(value)
-                    : value;
+                return typeof fallback === "object" ? JSON.parse(value) : value;
             }
             catch {
                 return fallback;
@@ -166,12 +164,12 @@
         static removePageElement(pageId) {
             const pageContainer = document.querySelector(`.js-sortable--page[data-page-id="${pageId}"]`);
             if (pageContainer) {
-                pageContainer.style.display = 'none';
+                pageContainer.style.display = "none";
             }
             // 删除标签页导航
             const tabLink = document.querySelector(`.page-mode--profile-page-extra a.page-mode__item.js-sortable--tab.ui-sortable-handle[data-page-id="${pageId}"]`);
             if (tabLink) {
-                tabLink.style.display = 'none';
+                tabLink.style.display = "none";
             }
         }
         static injectStyles() {
